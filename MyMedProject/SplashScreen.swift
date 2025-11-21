@@ -23,7 +23,7 @@ struct SplashScreenView: View {
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
 
-                    Text("Ваш медицинский спутник все работает проверка гитхаба")
+                    Text("Ваш медицинский спутник")
                         .font(.custom("Roboto", size: 25))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
