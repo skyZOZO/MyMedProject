@@ -10,7 +10,7 @@ struct SplashScreenView: View {
         } else {
             ZStack {
                 LinearGradient(
-                    gradient: Gradient(colors: [Color(hex: "0A2A43"), Color(hex: "1D68DA")]),
+                    gradient: Gradient(colors: [Color(hex: "0A2A43"), Color(hex: "0A2A43")]),
                     startPoint: .bottom,
                     endPoint: .top
                 )

@@ -14,8 +14,10 @@ class AuthViewModel: ObservableObject {
             DispatchQueue.main.async {
                 if let error = error {
                     self?.errorMessage = error.localizedDescription
+                    print("SignUp Error: \(error.localizedDescription)")
                 } else {
                     self?.isSignedIn = true
+                    print("SignUp Success")
                 }
             }
         }
@@ -26,8 +28,10 @@ class AuthViewModel: ObservableObject {
             DispatchQueue.main.async {
                 if let error = error {
                     self?.errorMessage = error.localizedDescription
+                    print("SignIn Error: \(error.localizedDescription)")
                 } else {
                     self?.isSignedIn = true
+                    print("SignIn Success")
                 }
             }
         }
