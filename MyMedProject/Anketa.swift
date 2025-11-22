@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseAuth
 
 struct AnketaView: View {
     @ObservedObject var authViewModel: AuthViewModel
@@ -33,7 +34,8 @@ struct AnketaView: View {
     @State private var allergies: [String] = [""]
     @State private var chronicDiseases: [String] = [""]
     
-    @State private var showAlert = false
+    @State private var showEmptyNameAlert = false
+    @State private var showSavedAlert = false
     
     var body: some View {
         NavigationStack {
@@ -44,11 +46,9 @@ struct AnketaView: View {
                         // MARK: - ЛИЧНЫЕ ДАННЫЕ
                         card {
                             sectionTitle("Личные данные")
-                            
                             customField("ФИО", text: $fullName)
                             customField("ИИН", text: $iin)
                             DatePicker("Дата рождения", selection: $dateOfBirth, displayedComponents: .date)
-                            
                             Picker("Пол", selection: $gender) {
                                 ForEach(genders, id: \.self) { Text($0) }
                             }
@@ -58,7 +58,6 @@ struct AnketaView: View {
                         // MARK: - КОНТАКТ
                         card {
                             sectionTitle("Контактная информация")
-                            
                             customField("Телефон", text: $phone)
                                 .keyboardType(.phonePad)
                             
@@ -69,9 +68,7 @@ struct AnketaView: View {
                                 
                                 Menu {
                                     ForEach(cities, id: \.self) { city in
-                                        Button(city) {
-                                            selectedCity = city
-                                        }
+                                        Button(city) { selectedCity = city }
                                     }
                                 } label: {
                                     HStack {
@@ -89,26 +86,21 @@ struct AnketaView: View {
                             }
                         }
 
-
-                        
                         // MARK: - ФИЗИЧЕСКИЕ ДАННЫЕ
                         card {
                             sectionTitle("Физические данные")
-                            
                             HStack {
                                 customField("Рост (см)", text: $height)
                                     .keyboardType(.numberPad)
                                 customField("Вес (кг)", text: $weight)
                                     .keyboardType(.numberPad)
                             }
-                            
                             HStack {
                                 customField("Систолическое давление", text: $systolic)
                                     .keyboardType(.numberPad)
                                 customField("Диастолическое давление", text: $diastolic)
                                     .keyboardType(.numberPad)
                             }
-                            
                             HStack {
                                 customField("Пульс", text: $pulse)
                                     .keyboardType(.numberPad)
@@ -119,7 +111,6 @@ struct AnketaView: View {
                         // MARK: - ВРЕДНЫЕ ПРИВЫЧКИ
                         card {
                             sectionTitle("Вредные привычки")
-                            
                             Toggle("Курение", isOn: $habitsSmoking)
                             Toggle("Алкоголь", isOn: $habitsAlcohol)
                             Toggle("Кофеин", isOn: $habitsCaffeine)
@@ -165,7 +156,6 @@ struct AnketaView: View {
                             }
                             .foregroundColor(.blue)
                         }
-                        
                     }
                     .padding()
                 }
@@ -173,22 +163,39 @@ struct AnketaView: View {
                 // MARK: - КНОПКИ
                 HStack {
                     Button("Пропустить") {
+                        if let email = Auth.auth().currentUser?.email {
+                            authViewModel.currentUser = User(username: "", email: email)
+                        }
                         authViewModel.isSignedIn = true
+                        authViewModel.shouldShowAnketa = false
                     }
-                    .foregroundColor(Color(hex: "144B75"))
 
+                    .foregroundColor(Color(hex: "144B75"))
+                    
                     Spacer()
                     
-                    Button(action: {
-                        showAlert = true
-                    }) {
-                        Text("Сохранить")
-                            .foregroundColor(.white)
-                            .padding()
-                            .padding(.horizontal)
-                            .background(Color(hex: "144B75"))
-                            .cornerRadius(12)
+                    Button("Сохранить") {
+                        if fullName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            showEmptyNameAlert = true
+                        } else {
+                            authViewModel.completeAnketa(username: fullName)
+                            // Показываем alert и после его закрытия сразу переходим в главное меню
+                            showSavedAlert = true
+                        }
                     }
+                    .alert("Данные сохранены", isPresented: $showSavedAlert) {
+                        Button("OK") {
+                            // Здесь больше ничего делать не нужно — VM уже обновила isSignedIn
+                            // Navigation автоматически поменяет экран, так как RootView смотрит на isSignedIn
+                        }
+                    } message: {
+                        Text("Вы можете изменить данные позже в профиле.")
+                    }
+                    .foregroundColor(.white)
+                    .padding()
+                    .padding(.horizontal)
+                    .background(Color(hex: "144B75"))
+                    .cornerRadius(12)
                 }
                 .padding()
             }
@@ -200,12 +207,11 @@ struct AnketaView: View {
                 )
                 .ignoresSafeArea()
             )
-            .alert("Данные сохранены", isPresented: $showAlert) {
-                Button("OK") {
-                    authViewModel.isSignedIn = true
-                }
-            } message: {
-                Text("Вы можете изменить данные позже в профиле.")
+            .alert("Введите ФИО", isPresented: $showEmptyNameAlert) {
+                Button("OK", role: .cancel) {}
+            }
+            .alert("Данные сохранены", isPresented: $showSavedAlert) {
+                Button("OK") {}
             }
             .navigationBarBackButtonHidden(true)
             .navigationTitle("Анкета")
@@ -213,7 +219,6 @@ struct AnketaView: View {
     }
     
     // MARK: - UI COMPONENTS
-    
     private func customField(_ placeholder: String, text: Binding<String>) -> some View {
         TextField(placeholder, text: text)
             .textFieldStyle(.roundedBorder)

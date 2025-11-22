@@ -16,7 +16,7 @@ struct UnifiedAuthView: View {
         NavigationStack {
             ZStack {
                 LinearGradient(
-                    colors: [Color(hex: "DDEEFF"), Color(hex: "F7FBFF")],
+                    colors: [ Color(hex: "DDEEFF"), Color(hex: "F7FBFF")],
                     startPoint: .top,
                     endPoint: .bottom
                 )
@@ -24,7 +24,7 @@ struct UnifiedAuthView: View {
 
                 VStack(spacing: 35) {
                     Text("DEM APP")
-                        .font(.custom("Spicy Rice", size: 80))
+                        .font(.custom("Gloock", size: 80))
                         .bold()
                         .foregroundColor(Color(hex: "0A2A43"))
                         .padding(.top, 40)
@@ -150,11 +150,11 @@ struct UnifiedAuthView: View {
 
                 // ------------------ Навигация на Анкету ------------------
                 NavigationLink(
-                    destination: AnketaView(authViewModel: authViewModel)
-                        .navigationBarBackButtonHidden(true), // скрываем кнопку назад
-                    isActive: $navigateToAnketa,
-                    label: { EmptyView() }
-                )
+                            destination: AnketaView(authViewModel: authViewModel)
+                                .navigationBarBackButtonHidden(true),
+                            isActive: $authViewModel.shouldShowAnketa,
+                            label: { EmptyView() }
+                        )
             }
         }
     }
@@ -207,3 +207,4 @@ struct UnifiedAuthView: View {
         return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluate(with: email)
     }
 }
+

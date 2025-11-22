@@ -7,7 +7,7 @@ struct AuthRouterView: View {
     var body: some View {
         NavigationStack {
             if authViewModel.isSignedIn {
-                MainTabView()    // 👉 сюда потом поставим анкету / dashboard
+                MainTabView(authVM: authViewModel)    // 👉 сюда потом поставим анкету / dashboard
             } else {
                 UnifiedAuthView(authViewModel: authViewModel)
             }

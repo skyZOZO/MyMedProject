@@ -23,14 +23,14 @@ struct ForgotPasswordView: View {
                 // MARK: - Заголовок
                 VStack(spacing: 10) {
                     Text("DEM APP")
-                        .font(.custom("Spicy Rice", size: 72))
+                        .font(.custom("Gloock", size: 72))
                         .bold()
-                        .foregroundColor(Color.fromHex("0A2A43"))
+                        .foregroundColor(Color(hex: "0A2A43"))
 
                     Text("Восстановление пароля")
                         .font(.title2)
                         .bold()
-                        .foregroundColor(Color.fromHex("0A2A43"))
+                        .foregroundColor(Color(hex: "0A2A43"))
 
                     Text("Введите свой email, и мы отправим ссылку для сброса пароля.")
                         .font(.subheadline)
@@ -75,7 +75,7 @@ struct ForgotPasswordView: View {
 
                     Button(action: { presentationMode.wrappedValue.dismiss() }) {
                         Text("Назад к входу")
-                            .foregroundColor(Color.fromHex("0A2A43"))
+                            .foregroundColor(Color(hex: "0A2A43"))
                             .font(.subheadline)
                     }
                     .padding(.top, 8)

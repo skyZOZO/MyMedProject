@@ -8,9 +8,9 @@ struct AuthContentView: View {
     var body: some View {
         Group {
             if authViewModel.isSignedIn {
-                MainTabView() // главная страница после входа
+                MainTabView(authVM: authViewModel) // <- передаём сюда
             } else {
-                UnifiedAuthView(authViewModel: authViewModel) // используем тот же ViewModel
+                UnifiedAuthView(authViewModel: authViewModel)
             }
         }
         .animation(.easeInOut, value: authViewModel.isSignedIn)

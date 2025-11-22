@@ -18,20 +18,20 @@ struct SplashScreenView: View {
 
                 VStack(spacing: 10) {
                     Text("DEM APP")
-                        .font(.custom("Spicy Rice", size: 80))
+                        .font(.custom("Gloock", size: 80))
                         .bold()
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
 
                     Text("Ваш медицинский спутник")
-                        .font(.custom("Roboto", size: 25))
+                        .font(.custom("PoiretOne", size: 25))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                 }
                 .padding()
             }
             .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                     withAnimation {
                         self.isActive = true
                     }
