@@ -10,7 +10,12 @@ struct ForgotPasswordView: View {
     var body: some View {
         ZStack {
             // Полный фон нежно-голубой
-            Color.fromHex("E8F8FF").ignoresSafeArea()
+            LinearGradient(
+                colors: [Color(hex: "DDEEFF"), Color(hex: "F7FBFF")],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
 
             VStack {
                 Spacer().frame(height: 60) // чуть поднимаем форму
@@ -58,7 +63,12 @@ struct ForgotPasswordView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.fromHex("0A2A43"))
+                            .background(LinearGradient(
+                                colors: [Color(hex: "144B75"), Color(hex: "0A2A43")],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+)
                             .cornerRadius(16)
                             .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 5)
                     }

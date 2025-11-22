@@ -8,7 +8,7 @@ struct UnifiedAuthView: View {
     @State private var localError: String?
     @State private var showForgotPassword = false
     @State private var animateAppear = false
-    @State private var navigateToAnketa = false
+    @State private var navigateToAnketa = false // для перехода после регистрации
 
     @ObservedObject var authViewModel: AuthViewModel
 
@@ -132,7 +132,7 @@ struct UnifiedAuthView: View {
                             .padding()
                             .background(
                                 LinearGradient(
-                                    colors: [Color(hex: "0A2A43"), Color(hex: "144B75")],
+                                    colors: [Color(hex: "144B75"), Color(hex: "0A2A43")],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
@@ -147,10 +147,19 @@ struct UnifiedAuthView: View {
                     Spacer(minLength: 40)
                 }
                 .onAppear { animateAppear = true }
+
+                // ------------------ Навигация на Анкету ------------------
+                NavigationLink(
+                    destination: AnketaView(authViewModel: authViewModel)
+                        .navigationBarBackButtonHidden(true), // скрываем кнопку назад
+                    isActive: $navigateToAnketa,
+                    label: { EmptyView() }
+                )
             }
         }
     }
 
+    // ------------------ Функции ------------------
     private func toggleAuth(_ signIn: Bool) {
         withAnimation(.spring()) {
             isSignIn = signIn
@@ -175,7 +184,14 @@ struct UnifiedAuthView: View {
         if isSignIn {
             authViewModel.signIn(email: trimmedEmail, password: trimmedPassword)
         } else {
-            authViewModel.signUp(email: trimmedEmail, password: trimmedPassword)
+            authViewModel.signUp(email: trimmedEmail, password: trimmedPassword) { success in
+                if success {
+                    // Переходим на Анкету
+                    withAnimation {
+                        navigateToAnketa = true
+                    }
+                }
+            }
         }
     }
 

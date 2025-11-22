@@ -5,19 +5,17 @@ class AuthViewModel: ObservableObject {
     @Published var isSignedIn = false
     @Published var errorMessage: String?
 
-    var user: User? {
-        Auth.auth().currentUser
-    }
+    var user: User? { Auth.auth().currentUser }
 
-    func signUp(email: String, password: String) {
+    func signUp(email: String, password: String, completion: @escaping (Bool) -> Void) {
         Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
             DispatchQueue.main.async {
                 if let error = error {
                     self?.errorMessage = error.localizedDescription
-                    print("SignUp Error: \(error.localizedDescription)")
+                    completion(false)
                 } else {
-                    self?.isSignedIn = true
-                    print("SignUp Success")
+                    // Не ставим isSignedIn = true сразу
+                    completion(true)
                 }
             }
         }
@@ -28,18 +26,10 @@ class AuthViewModel: ObservableObject {
             DispatchQueue.main.async {
                 if let error = error {
                     self?.errorMessage = error.localizedDescription
-                    print("SignIn Error: \(error.localizedDescription)")
                 } else {
-                    self?.isSignedIn = true
-                    print("SignIn Success")
+                    self?.isSignedIn = true // После обычного входа меняем сразу
                 }
             }
         }
     }
-
-    func signOut() {
-        try? Auth.auth().signOut()
-        self.isSignedIn = false
-    }
 }
-
