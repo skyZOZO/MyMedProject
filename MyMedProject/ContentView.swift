@@ -15,7 +15,7 @@ struct MainTabView: View {
                 case .home:
                     HomeView()
                 case .categories:
-                    Text("Категории (в разработке)")
+                    CategoriesView()
                 case .diary:
                     DiaryView() // ← новая вкладка Дневник самоконтроля
                 case .bookings:

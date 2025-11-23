@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Приложению нужен доступ к вашему местоположению, чтобы показывать аптеки и клиники рядом с вами.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Приложению нужен постоянный доступ к вашему местоположению для корректной работы карты.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>PoiretOne-Regular.ttf</string>

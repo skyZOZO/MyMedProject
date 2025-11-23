@@ -46,9 +46,8 @@ struct DiaryView: View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 24) {
                 
-                Spacer().frame(height: 20) // Отступ сверху от системной строки
+                Spacer().frame(height: 20)
 
-                // --------------------------------------
                 // Заголовок
                 HStack {
                     Text("Ваш дневник самоконтроля")
@@ -109,7 +108,7 @@ struct DiaryView: View {
                 .padding(.horizontal)
                 
                 // --------------------------------------
-                // История показателей (слева "Все дни")
+                // История показателей (новый дизайн с белым фоном)
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
                         Text("История показателей")
@@ -124,37 +123,41 @@ struct DiaryView: View {
                             .cornerRadius(6)
                     }
                     .padding(.horizontal)
-                    
-                    VStack(spacing: 12) {
-                        HistoricalDayCard(date: "23.11", indicators: [
-                            ("АД", "120/80", .green),
-                            ("Пульс", "78", .green),
-                            ("Сахар", "5.6", .yellow),
-                            ("Вес", "72 кг", .green),
-                            ("Сон", "7ч", .blue)
-                        ], expandedDays: $expandedDays)
-                        
-                        HistoricalDayCard(date: "22.11", indicators: [
-                            ("АД", "118/79", .green),
-                            ("Пульс", "80", .green),
-                            ("Сахар", "5.8", .yellow),
-                            ("Вес", "71.5 кг", .green),
-                            ("Сон", "6.5ч", .blue)
-                        ], expandedDays: $expandedDays)
-                        
-                        HistoricalDayCard(date: "21.11", indicators: [
-                            ("АД", "122/82", .yellow),
-                            ("Пульс", "77", .green),
-                            ("Сахар", "6.0", .orange),
-                            ("Вес", "72 кг", .green),
-                            ("Сон", "7ч", .blue)
-                        ], expandedDays: $expandedDays)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            HistoricalDayCompactCard(date: "23.11", indicators: [
+                                ("АД", "120/80", .green),
+                                ("Пульс", "78", .green),
+                                ("Сахар", "5.6", .yellow),
+                                ("Вес", "72 кг", .green),
+                                ("Сон", "7ч", .blue)
+                            ])
+
+                            HistoricalDayCompactCard(date: "22.11", indicators: [
+                                ("АД", "118/79", .green),
+                                ("Пульс", "80", .green),
+                                ("Сахар", "5.8", .yellow),
+                                ("Вес", "71.5 кг", .green),
+                                ("Сон", "6.5ч", .blue)
+                            ])
+
+                            HistoricalDayCompactCard(date: "21.11", indicators: [
+                                ("АД", "122/82", .yellow),
+                                ("Пульс", "77", .green),
+                                ("Сахар", "6.0", .orange),
+                                ("Вес", "72 кг", .green),
+                                ("Сон", "7ч", .blue)
+                            ])
+                        }
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
                 }
 
+                
+
                 // --------------------------------------
-                // Мои препараты — улучшенный блок
+                // Мои препараты
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Text("Мои препараты")
@@ -162,7 +165,7 @@ struct DiaryView: View {
                             .bold()
                         Spacer()
                         Button(action: {
-                            // Действие добавления нового препарата
+                            // Добавление препарата
                         }) {
                             Image(systemName: "plus.circle.fill")
                                 .font(.title2)
@@ -177,37 +180,44 @@ struct DiaryView: View {
                         MedicationCard(name: "Кальций", dosage: "20 мг", time: "20:00", taken: false)
                     }
                     .padding()
-                    .background(Color.gray.opacity(0.1))
+                    .background(Color.gray.opacity(0.05))
                     .cornerRadius(12)
                     .padding(.horizontal)
                 }
 
-                
                 // --------------------------------------
-                // Моя динамика
-                HStack {
-                    Text("Моя динамика")
-                        .font(.title2)
-                        .bold()
-                    Spacer()
-                    Button(action: {
-                        showAllGraphs.toggle()
-                    }) {
-                        Text(showAllGraphs ? "Скрыть всю динамику" : "Показать всю динамику")
+                // Моя динамика (горизонтальные графики)
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack {
+                        Text("Моя динамика")
+                            .font(.title2)
                             .bold()
-                            .foregroundColor(.blue)
+                        Spacer()
+                        Button(action: {
+                            showAllGraphs.toggle()
+                        }) {
+                            Text(showAllGraphs ? "Скрыть" : "Показать всё")
+                                .bold()
+                                .foregroundColor(.blue)
+                        }
                     }
-                }
-                .padding(.horizontal)
+                    .padding(.horizontal)
 
-                VStack(spacing: 12) {
-                    GraphCard(title: "График давления", data: bloodPressureData)
-                    GraphCard(title: "График сахара", data: sugarData)
-                    GraphCard(title: "График веса", data: weightData)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
+                            GraphCard(title: "Давление", data: bloodPressureData)
+                                .frame(width: 280)
+                            GraphCard(title: "Сахар", data: sugarData)
+                                .frame(width: 280)
+                            GraphCard(title: "Вес", data: weightData)
+                                .frame(width: 280)
+                        }
+                        .padding(.horizontal)
+                    }
+                    
+                    Spacer().frame(height: 40) // дополнительное место снизу
                 }
-                .padding(.horizontal)
 
-                
                 Spacer().frame(height: 60)
             }
         }
@@ -243,9 +253,7 @@ struct DiaryCategoryView: View {
             if expandedCategories.contains(title) {
                 VStack(spacing: 8) {
                     ForEach(indicators, id: \.self) { indicator in
-                        Button(action: {
-                            // открыть ввод данных
-                        }) {
+                        Button(action: {}) {
                             Text(indicator)
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -262,57 +270,39 @@ struct DiaryCategoryView: View {
 }
 
 // --------------------------------------
-// Карточка одного дня истории (сворачиваемая)
-struct HistoricalDayCard: View {
+// Карточка истории (компактная, горизонтальная с белым фоном)
+struct HistoricalDayCompactCard: View {
     let date: String
     let indicators: [(String, String, Color)]
-    @Binding var expandedDays: Set<String>
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(date)
-                    .font(.headline)
-                    .foregroundColor(.blue)
-                Spacer()
-                Image(systemName: expandedDays.contains(date) ? "chevron.up" : "chevron.down")
-            }
-            .padding()
-            .background(Color.blue.opacity(0.1))
-            .cornerRadius(12)
-            .onTapGesture {
-                if expandedDays.contains(date) {
-                    expandedDays.remove(date)
-                } else {
-                    expandedDays.insert(date)
+        VStack(alignment: .leading, spacing: 6) {
+            Text(date)
+                .font(.headline)
+                .foregroundColor(.black)
+            ForEach(indicators, id: \.0) { title, value, color in
+                HStack(spacing: 4) {
+                    Text(title.prefix(3))
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                    Spacer()
+                    Text(value)
+                        .bold()
+                        .foregroundColor(color)
+                        .font(.caption)
                 }
-            }
-            
-            if expandedDays.contains(date) {
-                VStack(spacing: 6) {
-                    ForEach(indicators, id: \.0) { title, value, color in
-                        HStack {
-                            Text(title)
-                                .font(.subheadline)
-                            Spacer()
-                            Text(value)
-                                .bold()
-                                .foregroundColor(color)
-                        }
-                        .padding(.vertical, 4)
-                        Divider()
-                    }
-                }
-                .padding(.horizontal)
-                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .animation(.easeInOut, value: expandedDays)
+        .padding()
+        .frame(width: 160)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
     }
 }
 
 // --------------------------------------
-// Карточка препарата (улучшенная)
+// Карточка препарата
 struct MedicationCard: View {
     let name: String
     let dosage: String
@@ -320,10 +310,7 @@ struct MedicationCard: View {
     let taken: Bool
     
     var body: some View {
-        HStack(spacing: 12) {
-            Circle()
-                .fill(taken ? Color.green : Color.gray.opacity(0.4))
-                .frame(width: 20, height: 20)
+        HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(name).bold()
                 Text("\(dosage) • \(time)")
@@ -331,6 +318,9 @@ struct MedicationCard: View {
                     .foregroundColor(.secondary)
             }
             Spacer()
+            Circle()
+                .fill(taken ? Color.green : Color.gray.opacity(0.4))
+                .frame(width: 20, height: 20)
         }
         .padding()
         .background(Color.white)
@@ -364,7 +354,7 @@ struct GraphCard: View {
         }
         .padding()
         .background(Color.white)
-        .cornerRadius(12)
+        .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
     }
 }

@@ -3,6 +3,8 @@ import MapKit
 
 struct HomeView: View {
     @State private var currentBannerIndex = 0
+    @State private var openNearbyPlaces = false
+    
     let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
     
     var body: some View {
@@ -46,6 +48,11 @@ struct HomeView: View {
                 .background(Color(hex: "#F4F8FB").opacity(0.95))
                 .zIndex(1)
         }
+        
+        .fullScreenCover(isPresented: $openNearbyPlaces) {
+            NearbyPlacesView()
+        }
+
     }
     
     // ---------------------------------------------------------
@@ -130,14 +137,16 @@ struct HomeView: View {
                 
                 Spacer()
                 
-                Button(action: {}) {
+                Button(action: {    openNearbyPlaces = true
+}) {
                     Image(systemName: "map.fill")
                         .foregroundColor(.white)
                         .font(.system(size: 22))
                         .padding(12)
-                        .background(Color(hex: "#0B82F4"))
+                        .background(Color(hex: "#0A2A43"))
                         .cornerRadius(12)
                 }
+
             }
             .padding(16)
             .background(
@@ -383,3 +392,4 @@ struct HomeView: View {
     }
 
 }
+
