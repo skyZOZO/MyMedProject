@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum AppTab {
-    case home, categories, search, bookings, profile
+    case home, categories, diary, bookings, profile // заменили search на diary
 }
 
 struct MainTabView: View {
@@ -16,12 +16,11 @@ struct MainTabView: View {
                     HomeView()
                 case .categories:
                     Text("Категории (в разработке)")
-                case .search:
-                    SearchView()
+                case .diary:
+                    DiaryView() // ← новая вкладка Дневник самоконтроля
                 case .bookings:
                     Text("Мои записи (в разработке)")
                 case .profile:
-                    // Передаём тот же VM, чтобы ProfileView видел email/username
                     ProfileView(viewModel: authVM)
                 }
             }
@@ -37,7 +36,7 @@ struct MainTabView: View {
 }
 
 // ------------------------------------
-// Кастомная таб-бар
+// Обновляем таб-бар
 struct GlassTabBar: View {
     @Binding var selectedTab: AppTab
 
@@ -45,7 +44,7 @@ struct GlassTabBar: View {
         HStack(spacing: 40) {
             tabButton(tab: .home, icon: "house.fill")
             tabButton(tab: .categories, icon: "square.grid.2x2.fill")
-            tabButton(tab: .search, icon: "magnifyingglass")
+            tabButton(tab: .diary, icon: "book.fill") // ← иконка дневника
             tabButton(tab: .bookings, icon: "calendar")
             tabButton(tab: .profile, icon: "person.crop.circle")
         }

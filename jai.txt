@@ -1,0 +1,414 @@
+import SwiftUI
+import MapKit
+
+struct HomeView: View {
+    @State private var currentBannerIndex = 0
+    let banners = ["banner1", "banner2", "banner3"]
+    let timer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
+
+    var body: some View {
+        ZStack(alignment: .top) {
+            Color(hex: "#F4F8FB").ignoresSafeArea()
+
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 22) {
+                    Spacer().frame(height: 100) // оставляем место для шапки
+
+                    // Баннер и все остальное
+                    bannerSection
+                        .padding(.horizontal, 20)
+                    categoryHeader
+                        .padding(.horizontal, 20)
+                    scrollCategories
+                        .padding(.horizontal, 20)
+                    diaryHeader
+                        .padding(.horizontal, 20)
+                    diarySection
+                        .padding(.horizontal, 20)
+                    recordsHeader
+                        .padding(.horizontal, 20)
+                    improvedRecordList
+                        .padding(.horizontal, 20)
+
+                    Spacer().frame(height: 120)
+                }
+            }
+
+            // Шапка закреплена сверху
+            topBar
+                .padding(.horizontal, 20)
+                .padding(.top, 60)
+                .background(Color(hex: "#F4F8FB").opacity(0.95))
+                .zIndex(1)
+        }
+
+    }
+}
+
+/////////////////////////////////////////////////////////
+// MARK: TOP BAR
+/////////////////////////////////////////////////////////
+
+extension HomeView {
+    private var topBar: some View {
+        HStack {
+            HStack(spacing: 6) {
+                Image(systemName: "location.fill")
+                    .foregroundColor(Color(hex: "#064266"))
+                Text("Караганда")
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundColor(Color(hex: "#064266"))
+            }
+            Spacer()
+            Image(systemName: "bell.fill")
+                .font(.system(size: 21))
+                .foregroundColor(Color(hex: "#064266"))
+        }
+    }
+}
+
+/////////////////////////////////////////////////////////
+// MARK: BANNER
+/////////////////////////////////////////////////////////
+
+extension HomeView {
+    private var bannerSection: some View {
+            TabView(selection: $currentBannerIndex) {
+                // Баннер 1 — карта
+                Button(action: {
+                    print("Открыть карту") // позже здесь будет переход на карту
+                }) {
+                    ZStack {
+                        // Для примера используем изображение карты
+                        Map(coordinateRegion: .constant(MKCoordinateRegion(
+                                center: CLLocationCoordinate2D(latitude: 43.222, longitude: 76.851),
+                                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                            )))
+                            .cornerRadius(22)
+                        
+                        Text("Искать поблизости")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(Color(hex: "#0B82F4").opacity(0.6))
+                            .cornerRadius(12)
+                    }
+                }
+                .tag(0)
+
+                // Баннер 2 — советы по здоровью
+                Button(action: {
+                    print("Открыть советы по здоровью")
+                }) {
+                    ZStack {
+                        LinearGradient(colors: [Color(hex: "#0B82F4"), Color(hex: "#064266")],
+                                       startPoint: .topLeading, endPoint: .bottomTrailing)
+                            .cornerRadius(22)
+
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Советы по здоровью")
+                                .font(.system(size: 22, weight: .bold))
+                                .foregroundColor(.white)
+                            Text("Ежедневные рекомендации для вас")
+                                .font(.system(size: 14))
+                                .foregroundColor(.white.opacity(0.85))
+                        }
+                        .padding(20)
+                    }
+                }
+                .tag(1)
+
+                // Баннер 3 — лучшие врачи города
+                Button(action: {
+                    print("Открыть список топ-врачей")
+                }) {
+                    ZStack {
+                        LinearGradient(colors: [Color(hex: "#064266"), Color(hex: "#0B82F4")],
+                                       startPoint: .topLeading, endPoint: .bottomTrailing)
+                            .cornerRadius(22)
+
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Лучшие врачи города")
+                                .font(.system(size: 22, weight: .bold))
+                                .foregroundColor(.white)
+                            Text("Только проверенные специалисты")
+                                .font(.system(size: 14))
+                                .foregroundColor(.white.opacity(0.85))
+                        }
+                        .padding(20)
+                    }
+                }
+                .tag(2)
+            }
+            .frame(height: 155)
+            .tabViewStyle(PageTabViewStyle())
+            .onReceive(timer) { _ in
+                withAnimation {
+                    currentBannerIndex = (currentBannerIndex + 1) % 3
+                }
+            }
+        }
+
+    private func bannerCard(image: String, title: String, subtitle: String) -> some View {
+        ZStack {
+            LinearGradient(colors: [Color(hex: "#064266"), Color(hex: "#0B82F4")],
+                           startPoint: .topLeading, endPoint: .bottomTrailing)
+                .cornerRadius(22)
+                .shadow(color: .gray.opacity(0.2), radius: 8, x: 0, y: 4)
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(title)
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundColor(.white)
+                Text(subtitle)
+                    .font(.system(size: 14))
+                    .foregroundColor(.white.opacity(0.85))
+            }
+            .padding(20)
+        }
+        .frame(height: 155)
+        .padding(.vertical, 4)
+        .overlay(
+            Image(image)
+                .resizable()
+                .scaledToFit()
+                .frame(height: 155)
+                .cornerRadius(22)
+                .opacity(0.25),
+            alignment: .trailing
+        )
+    }
+}
+
+/////////////////////////////////////////////////////////
+// MARK: CATEGORY SCROLL
+/////////////////////////////////////////////////////////
+
+extension HomeView {
+    private var categoryHeader: some View {
+        HStack {
+            Text("Категории врачей")
+                .font(.system(size: 22, weight: .bold))
+            Spacer()
+            Text("Все")
+                .foregroundColor(Color(hex: "#064266")) // Цвет как "Мои записи"
+        }
+    }
+
+    private var scrollCategories: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 18) {
+                categoryCard(icon: "heart.text.square", title: "Пульмонолог")
+                categoryCard(icon: "stethoscope", title: "Терапевт")
+                categoryCard(icon: "cross.case.fill", title: "Хирург")
+                categoryCard(icon: "brain", title: "Невролог")
+                categoryCard(icon: "tooth.fill", title: "Стоматолог")
+            }
+        }
+    }
+
+    private func categoryCard(icon: String, title: String) -> some View {
+        VStack(spacing: 6) {
+            RoundedRectangle(cornerRadius: 18)
+                .fill(.white)
+                .frame(width: 75, height: 75)
+                .shadow(color: .gray.opacity(0.12), radius: 6)
+                .overlay(
+                    Image(systemName: icon)
+                        .font(.system(size: 26))
+                        .foregroundColor(Color(hex: "#064266"))
+                )
+
+            Text(title)
+                .font(.system(size: 14))
+        }
+    }
+}
+
+/////////////////////////////////////////////////////////
+// MARK: ДНЕВНИК САМОКОНТРОЛЯ
+/////////////////////////////////////////////////////////
+
+extension HomeView {
+    private var diaryHeader: some View {
+        HStack {
+            Text("Дневник самоконтроля")
+                .font(.system(size: 22, weight: .bold))
+            Spacer()
+            Button("История") {
+                // действие перехода к истории
+            }
+            .font(.system(size: 14, weight: .semibold))
+            .foregroundColor(Color(hex: "#064266")) // Цвет как "Мои записи"
+        }
+        .padding(.top, 4)
+    }
+
+    private var diarySection: some View {
+        VStack(spacing: 16) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    diaryCard(icon: "heart.fill", title: "Пульс", value: "72", unit: "уд/мин", progress: 0.7)
+                    diaryCard(icon: "chart.bar", title: "Давление", value: "120/80", unit: "мм рт.ст.", progress: 0.5)
+                    diaryCard(icon: "figure.walk", title: "Шаги", value: "6 530", unit: "шагов", progress: 0.8)
+                    diaryCard(icon: "bed.double.fill", title: "Сон", value: "7.4", unit: "час", progress: 0.6)
+                    diaryCard(icon: "drop.fill", title: "Вода", value: "1.8", unit: "л", progress: 0.4)
+                    diaryCard(icon: "thermometer", title: "Температура", value: "36.6", unit: "℃", progress: 0.9)
+                }
+                .padding(.horizontal, 2)
+            }
+
+            Button(action: {
+                // добавить новую запись
+            }) {
+                Text("Добавить запись")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(LinearGradient(colors: [Color(hex: "#064266"), Color(hex: "#0B82F4")], startPoint: .leading, endPoint: .trailing))
+                    .cornerRadius(16)
+            }
+        }
+    }
+
+    private func diaryCard(icon: String, title: String, value: String, unit: String, progress: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.system(size: 22))
+                    .foregroundColor(.white)
+                    .padding(10)
+                    .background(Color(hex: "#064266"))
+                    .clipShape(Circle())
+
+                Spacer()
+            }
+
+            Text(title)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.gray)
+
+            HStack(alignment: .bottom, spacing: 4) {
+                Text(value)
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundColor(.black)
+                Text(unit)
+                    .font(.system(size: 12))
+                    .foregroundColor(.gray)
+            }
+
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(height: 6)
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color(hex: "#0B82F4"))
+                    .frame(width: 80 * progress, height: 6)
+            }
+        }
+        .padding()
+        .frame(width: 140, height: 160)
+        .background(Color.white)
+        .cornerRadius(18)
+        .shadow(color: .gray.opacity(0.08), radius: 8, x: 0, y: 4)
+    }
+}
+
+/////////////////////////////////////////////////////////
+// MARK: ЗАПИСИ
+/////////////////////////////////////////////////////////
+
+extension HomeView {
+    private var recordsHeader: some View {
+        HStack {
+            Text("Текущие записи")
+                .font(.system(size: 22, weight: .bold))
+            Spacer()
+            Button("Мои записи") { }
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(Color(hex: "#064266"))
+        }
+        .padding(.top, 10)
+    }
+
+    private var improvedRecordList: some View {
+        VStack(spacing: 14) {
+            record(
+                date: "23 ноября 2025, 11:30",
+                daysLeft: 1,
+                name: "Dr. Zaitin Zhanargul",
+                speciality: "Кардиолог", rating: 4.7, exp: 8, image: "doctor2")
+
+            record(
+                date: "26 ноября 2025, 10:00",
+                daysLeft: 3,
+                name: "Dr. Kuanysh Aruzhan",
+                speciality: "Гинеколог", rating: 5.0, exp: 12, image: "doctor1")
+
+            record(
+                date: "28 ноября 2025, 15:00",
+                daysLeft: 5,
+                name: "Dr. Saniya Samatqyzy",
+                speciality: "Невролог", rating: 4.9, exp: 10, image: "doctor1")
+        }
+    }
+
+    private func record(date: String, daysLeft: Int, name: String, speciality: String, rating: Double, exp: Int, image: String) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+
+            let color: Color = daysLeft <= 1 ? .red :
+                               daysLeft <= 3 ? .orange :
+                               .green
+
+            HStack {
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(color)
+                    .frame(width: 4, height: 20)
+                Text(date).foregroundColor(color)
+                Spacer()
+                Text("Перейти")
+                    .fontWeight(.semibold)
+                    .foregroundColor(Color(hex: "#064266"))
+            }
+            .font(.system(size: 14))
+
+            HStack(spacing: 16) {
+                Image(image)
+                    .resizable()
+                    .frame(width: 65, height: 65)
+                    .clipShape(Circle())
+                    .shadow(color: .gray.opacity(0.15), radius: 5, x: 0, y: 2)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(name)
+                        .font(.system(size: 18, weight: .semibold))
+                    Text(speciality)
+                        .foregroundColor(.gray)
+                        .font(.system(size: 14))
+
+                    HStack(spacing: 6) {
+                        Image(systemName: "star.fill")
+                            .foregroundColor(.yellow)
+                            .font(.system(size: 14))
+                        Text(String(format: "%.1f", rating))
+                            .font(.system(size: 14))
+                        Text("• \(exp) лет")
+                            .foregroundColor(.gray)
+                            .font(.system(size: 12))
+                    }
+                }
+                Spacer()
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 18)
+                .fill(Color.white)
+                .shadow(color: .gray.opacity(0.08), radius: 8, x: 0, y: 4)
+        )
+    }
+}
+
+
+

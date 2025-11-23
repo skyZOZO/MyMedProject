@@ -7,12 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		08128A122ED2F3BC00D29FD1 /* jai.txt in Resources */ = {isa = PBXBuildFile; fileRef = 08128A112ED2F3B200D29FD1 /* jai.txt */; };
 		0835CFBB2ED0E82200F2797A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 0835CFBA2ED0E82200F2797A /* FirebaseAuth */; };
 		0835CFBD2ED0E82200F2797A /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 0835CFBC2ED0E82200F2797A /* FirebaseDatabase */; };
 		0835CFBF2ED0E82200F2797A /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 0835CFBE2ED0E82200F2797A /* FirebaseFirestore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		08128A112ED2F3B200D29FD1 /* jai.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = jai.txt; sourceTree = "<group>"; };
 		0835CF9E2ED0E2C100F2797A /* MyMedProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyMedProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -54,6 +56,7 @@
 		0835CF952ED0E2C100F2797A = {
 			isa = PBXGroup;
 			children = (
+				08128A112ED2F3B200D29FD1 /* jai.txt */,
 				0835CFA02ED0E2C100F2797A /* MyMedProject */,
 				0835CF9F2ED0E2C100F2797A /* Products */,
 			);
@@ -137,6 +140,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				08128A122ED2F3BC00D29FD1 /* jai.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
