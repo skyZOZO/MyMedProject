@@ -134,7 +134,7 @@ struct DoctorsListView: View {
     
     let allDoctors: [String: [(name: String, speciality: String, rating: Double, exp: Int, image: String, clinic: String, phone: String, price: String)]] = [
         "Терапевт": [
-            (name: "Аекина С.С.", speciality: "Терапевт", rating: 3.5, exp: 10, image: "doctor1", clinic: "City Clinic", phone: "+7 701 123 45 67", price: "5000 KZT"),
+            (name: "Аекина С.С.", speciality: "Терапевт", rating: 4.0, exp: 10, image: "doctor1", clinic: "City Clinic", phone: "+7 701 123 45 67", price: "5000 KZT"),
             (name: "Куаныш А.К.", speciality: "Терапевт", rating: 4.7, exp: 8, image: "doctor2", clinic: "Central Hospital", phone: "+7 701 765 43 21", price: "4500 KZT"),
             (name: "Зайтин Ж.К.", speciality: "Терапевт", rating: 2.2, exp: 5, image: "doctor3", clinic: "Health Plus", phone: "+7 701 234 56 89", price: "4000 KZT"),
             (name: "Калелова А.К.", speciality: "Терапевт", rating: 5.0, exp: 12, image: "doctor3", clinic: "City Clinic", phone: "+7 701 987 65 43", price: "5200 KZT"),
@@ -142,7 +142,7 @@ struct DoctorsListView: View {
             (name: "Омаров С.А.", speciality: "Терапевт", rating: 4.6, exp: 9, image: "doctor3", clinic: "Health Plus", phone: "+7 701 321 45 67", price: "4800 KZT"),
             (name: "Ерланов К.С.", speciality: "Терапевт", rating: 4.9, exp: 15, image: "doctor3", clinic: "City Clinic", phone: "+7 701 543 21 76", price: "5500 KZT"),
             (name: "Оразбеков Д.А.", speciality: "Терапевт", rating: 4.1, exp: 6, image: "doctor3", clinic: "Central Hospital", phone: "+7 701 876 54 32", price: "4300 KZT")
-        
+            
         ],
         "Кардиолог": [
             (name: "Амангельдина А.А.", speciality: "Кардиолог", rating: 4.7, exp: 8, image: "doctor2", clinic: "Cardio Center", phone: "+7 701 234 56 78", price: "7000 KZT"),
@@ -168,9 +168,9 @@ struct DoctorsListView: View {
         doctors.filter { doctor in
             let priceValue = Double(doctor.price.replacingOccurrences(of: " KZT", with: "")) ?? 0
             return (selectedClinic == "Все клиники" || doctor.clinic == selectedClinic) &&
-                   doctor.rating >= minRating &&
-                   doctor.exp >= minExp &&
-                   priceValue <= maxPrice
+            doctor.rating >= minRating &&
+            doctor.exp >= minExp &&
+            priceValue <= maxPrice
         }
     }
     
@@ -191,7 +191,7 @@ struct DoctorsListView: View {
                     // Рейтинг
                     Menu {
                         let ratingValues = stride(from: 1.0, through: 5.0, by: 0.2).map { Double($0) }
-
+                        
                         ForEach(ratingValues, id: \.self) { value in
                             Button(String(format: "%.1f ⭐️", value)) {
                                 minRating = value
@@ -209,7 +209,7 @@ struct DoctorsListView: View {
                     } label: {
                         FilterButton(title: "Стаж от: \(Int(minExp)) лет") // принудительно Int
                     }
-
+                    
                     // Цена
                     Menu {
                         ForEach([1000,2000,3000,4000,5000,6000,7000,8000,9000,10000], id: \.self) { price in
@@ -226,89 +226,23 @@ struct DoctorsListView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     ForEach(filteredDoctors, id: \.name) { doctor in
-                        doctorCard(doctor: doctor)
+                        NavigationLink(destination: DoctorProfileView(doctor: doctor)) {
+                            DoctorRow(doctor: doctor)
+                                .padding(.horizontal)
+                        }
                     }
                 }
-                .padding()
+                .padding(.vertical)
             }
+
         }
         .navigationTitle(category)
     }
     
-    private func doctorCard(doctor: (name: String, speciality: String, rating: Double, exp: Int, image: String, clinic: String, phone: String, price: String)) -> some View {
-        @State var isFavorite = false
-        
-        return VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 14) {
-                Image(doctor.image)
-                    .resizable()
-                    .frame(width: 70, height: 70)
-                    .clipShape(Circle())
-                    .shadow(color: .gray.opacity(0.2), radius: 6, x: 0, y: 4)
-                
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Text(doctor.name)
-                            .font(.system(size: 17, weight: .semibold))
-                        Spacer()
-                        Button(action: { isFavorite.toggle() }) {
-                            Image(systemName: isFavorite ? "star.fill" : "star")
-                                .foregroundColor(isFavorite ? .yellow : .gray)
-                        }
-                    }
-                    
-                    Text(doctor.speciality)
-                        .foregroundColor(.gray)
-                        .font(.system(size: 14))
-                    
-                    HStack(spacing: 6) {
-                        Image(systemName: "star.fill")
-                            .foregroundColor(.yellow)
-                            .font(.system(size: 14))
-                        Text(String(format: "%.1f", doctor.rating))
-                            .font(.system(size: 14))
-                        Text("• \(doctor.exp) лет")
-                            .foregroundColor(.gray)
-                            .font(.system(size: 12))
-                    }
-                    
-                    HStack(spacing: 6) {
-                        Image(systemName: "building.2.fill")
-                            .foregroundColor(.blue)
-                            .font(.system(size: 14))
-                        Text(doctor.clinic)
-                            .font(.system(size: 13))
-                            .foregroundColor(.gray)
-                    }
-                    
-                    HStack(spacing: 6) {
-                        Image(systemName: "phone.fill")
-                            .foregroundColor(.green)
-                            .font(.system(size: 14))
-                        Text(doctor.phone)
-                            .font(.system(size: 13))
-                            .foregroundColor(.gray)
-                    }
-                    
-                    HStack(spacing: 6) {
-                        Image(systemName: "dollarsign.circle.fill")
-                            .foregroundColor(.orange)
-                            .font(.system(size: 14))
-                        Text(doctor.price)
-                            .font(.system(size: 13))
-                            .foregroundColor(.gray)
-                    }
-                }
-            }
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 22)
-                .fill(Color.white)
-                .shadow(color: .gray.opacity(0.15), radius: 12, x: 0, y: 6)
-        )
-    }
+    
+
 }
+
 
 // ------------------ Кнопка фильтра ------------------
 struct FilterButton: View {

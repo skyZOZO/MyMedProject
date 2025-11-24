@@ -1,362 +1,263 @@
 import SwiftUI
-import MapKit
 
-struct HomeView: View {
-    @State private var currentBannerIndex = 0
-    let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
+struct CategoriesView: View {
+    // Пример данных
+    let doctorCategories = ["Терапевт", "Кардиолог", "Дерматолог", "Невролог", "Хирург", "Офтальмолог", "Стоматолог", "Эндокринолог", "Педиатр", "Ортопед", "Гастроэнтеролог", "Отоларинголог", "Гинеколог", "Аллерголог", "Диетолог"]
+    @State private var favorites: [String] = ["Кардиолог", "Хирург"]
+    @State private var favoriteDoctors: [(name: String, speciality: String, rating: Double, clinic: String, image: String)] = [
+        (name: "Аекина С.С.", speciality: "Терапевт", rating: 4.8, clinic: "City Clinic", image: "doctor1"),
+        (name: "Амангельдина А.А.", speciality: "Кардиолог", rating: 4.9, clinic: "Heart Clinic", image: "doctor2")
+    ]
+
+
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    
+                    // ------------------ Блок Избранное ------------------
+                    if !favoriteDoctors.isEmpty {
+                        Text("Избранное")
+                            .font(.title2)
+                            .bold()
+                            .padding(.horizontal)
+
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 15) {
+                                ForEach(favoriteDoctors, id: \.name) { doctor in
+                                    FavoriteDoctorCard(doctor: doctor) {
+                                        withAnimation(.spring()) {
+                                            favoriteDoctors.removeAll { $0.name == doctor.name }
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                            .padding(.vertical, 8)
+                        }
+                    }
+
+
+                    // ------------------ Список категорий врачей ------------------
+                    Text("Категории врачей")
+                        .font(.title2)
+                        .bold()
+                        .padding(.horizontal)
+
+                    VStack(spacing: 12) {
+                        ForEach(doctorCategories, id: \.self) { category in
+                            NavigationLink(destination: DoctorsListView(category: category)) {
+                                HStack {
+                                    Text(category)
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.gray)
+                                }
+                                .padding()
+                                .background(Color.white)
+                                .cornerRadius(12)
+                                .shadow(color: .black.opacity(0.05), radius: 3, x: 0, y: 2)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                    Spacer(minLength: 50)
+                }
+            }
+            .navigationBarTitle("", displayMode: .inline)
+            .navigationBarHidden(true)
+        }
+    }
+}
+
+
+struct FavoriteDoctorCard: View {
+    let doctor: (name: String, speciality: String, rating: Double, clinic: String, image: String)
+    var removeAction: () -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+
+            Image(doctor.image)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 60, height: 60)
+                .clipShape(Circle())
+                .shadow(radius: 1)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(doctor.name)
+                    .font(.system(size: 17, weight: .semibold))
+                    .lineLimit(1)
+
+                Text(doctor.speciality)
+                    .font(.system(size: 13))
+                    .foregroundColor(.gray)
+
+                HStack(spacing: 6) {
+                    Image(systemName: "star.fill")
+                        .foregroundColor(.yellow)
+                        .font(.system(size: 12))
+
+                    Text(String(format: "%.1f", doctor.rating))
+                        .font(.system(size: 12))
+
+                    Text("• \(doctor.clinic)")
+                        .font(.system(size: 12))
+                        .foregroundColor(.blue)
+                }
+            }
+
+            Spacer()
+
+            // Кнопка удаления
+            Button(action: removeAction) {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundColor(.red.opacity(0.8))
+                    .font(.system(size: 16))
+            }
+        }
+        .padding(14)
+        .frame(width: 260, height: 100)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+    }
+}
+
+
+// ------------------ Список врачей по категории ------------------
+struct DoctorsListView: View {
+    let category: String
+    
+    let allDoctors: [String: [(name: String, speciality: String, rating: Double, exp: Int, image: String, clinic: String, phone: String, price: String)]] = [
+        "Терапевт": [
+            (name: "Аекина С.С.", speciality: "Терапевт", rating: 3.5, exp: 10, image: "doctor1", clinic: "City Clinic", phone: "+7 701 123 45 67", price: "5000 KZT"),
+            (name: "Куаныш А.К.", speciality: "Терапевт", rating: 4.7, exp: 8, image: "doctor2", clinic: "Central Hospital", phone: "+7 701 765 43 21", price: "4500 KZT"),
+            (name: "Зайтин Ж.К.", speciality: "Терапевт", rating: 2.2, exp: 5, image: "doctor3", clinic: "Health Plus", phone: "+7 701 234 56 89", price: "4000 KZT"),
+            (name: "Калелова А.К.", speciality: "Терапевт", rating: 5.0, exp: 12, image: "doctor3", clinic: "City Clinic", phone: "+7 701 987 65 43", price: "5200 KZT"),
+            (name: "Анарбеков Е.Т.", speciality: "Терапевт", rating: 4.3, exp: 7, image: "doctor3", clinic: "Central Hospital", phone: "+7 701 654 32 10", price: "4700 KZT"),
+            (name: "Омаров С.А.", speciality: "Терапевт", rating: 4.6, exp: 9, image: "doctor3", clinic: "Health Plus", phone: "+7 701 321 45 67", price: "4800 KZT"),
+            (name: "Ерланов К.С.", speciality: "Терапевт", rating: 4.9, exp: 15, image: "doctor3", clinic: "City Clinic", phone: "+7 701 543 21 76", price: "5500 KZT"),
+            (name: "Оразбеков Д.А.", speciality: "Терапевт", rating: 4.1, exp: 6, image: "doctor3", clinic: "Central Hospital", phone: "+7 701 876 54 32", price: "4300 KZT")
+        
+        ],
+        "Кардиолог": [
+            (name: "Амангельдина А.А.", speciality: "Кардиолог", rating: 4.7, exp: 8, image: "doctor2", clinic: "Cardio Center", phone: "+7 701 234 56 78", price: "7000 KZT"),
+            (name: "Талгатова С.С.", speciality: "Кардиолог", rating: 5.0, exp: 12, image: "doctor1", clinic: "Heart Clinic", phone: "+7 701 876 54 32", price: "7500 KZT")
+        ]
+    ]
+    
+    @State private var selectedClinic: String = "Все клиники"
+    @State private var minRating: Double = 0
+    @State private var minExp: Int = 0
+    @State private var maxPrice: Double = 10000
+    
+    var clinics: [String] {
+        let clinics = doctors.map { $0.clinic }
+        return ["Все клиники"] + Array(Set(clinics))
+    }
+    
+    var doctors: [(name: String, speciality: String, rating: Double, exp: Int, image: String, clinic: String, phone: String, price: String)] {
+        allDoctors[category] ?? []
+    }
+    
+    var filteredDoctors: [(name: String, speciality: String, rating: Double, exp: Int, image: String, clinic: String, phone: String, price: String)] {
+        doctors.filter { doctor in
+            let priceValue = Double(doctor.price.replacingOccurrences(of: " KZT", with: "")) ?? 0
+            return (selectedClinic == "Все клиники" || doctor.clinic == selectedClinic) &&
+                   doctor.rating >= minRating &&
+                   doctor.exp >= minExp &&
+                   priceValue <= maxPrice
+        }
+    }
     
     var body: some View {
-        ZStack(alignment: .top) {
-            Color(hex: "#F4F8FB").ignoresSafeArea()
-            
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 26) {
+        VStack(spacing: 12) {
+            // ------------------ Горизонтальные фильтры ------------------
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    // Клиника
+                    Menu {
+                        ForEach(clinics, id: \.self) { clinic in
+                            Button(clinic) { selectedClinic = clinic }
+                        }
+                    } label: {
+                        FilterButton(title: selectedClinic)
+                    }
                     
-                    Spacer().frame(height: 110)
-                    
-                    bannerSection
-                        .padding(.horizontal, 20)
-                    
-                    VStack(spacing: 12) { // вместо 26 ставим меньшее значение
-                        categoryHeader
-                            .padding(.horizontal, 20)
+                    // Рейтинг
+                    Menu {
+                        let ratingValues = stride(from: 1.0, through: 5.0, by: 0.2).map { Double($0) }
 
-                        scrollCategories
-                            .padding(.horizontal, 20)
+                        ForEach(ratingValues, id: \.self) { value in
+                            Button(String(format: "%.1f ⭐️", value)) {
+                                minRating = value
+                            }
+                        }
+                    } label: {
+                        FilterButton(title: String(format: "Рейтинг от: %.1f", minRating))
+                    }
+                    
+                    // Стаж
+                    Menu {
+                        ForEach(Array(0...30), id: \.self) { exp in
+                            Button("\(exp) лет") { minExp = exp }
+                        }
+                    } label: {
+                        FilterButton(title: "Стаж от: \(Int(minExp)) лет") // принудительно Int
                     }
 
-                    dailyIndicatorsSection
-                        .padding(.horizontal, 20)
-                    
-                    VStack(spacing: 12) { // вместо 26 ставим меньшее значение
-
-                    recordsHeader
-                        .padding(.horizontal, 20)
-                    
-                    improvedRecordList
-                        .padding(.horizontal, 20)
+                    // Цена
+                    Menu {
+                        ForEach([1000,2000,3000,4000,5000,6000,7000,8000,9000,10000], id: \.self) { price in
+                            Button("\(price) KZT") { maxPrice = Double(price) }
+                        }
+                    } label: {
+                        FilterButton(title: "До: \(Int(maxPrice)) KZT") // Int вместо Double
                     }
-                    Spacer().frame(height: 100)
                 }
+                .padding(.horizontal)
             }
             
-            topBar
-                .padding(.top, 60)
-                .padding(.horizontal, 20)
-                .background(Color(hex: "#F4F8FB").opacity(0.95))
-                .zIndex(1)
-        }
-    }
-    
-    // ---------------------------------------------------------
-    // MARK: - TOP BAR
-    // ---------------------------------------------------------
-    private var topBar: some View {
-        HStack {
-            HStack(spacing: 8) {
-                Image(systemName: "location.fill")
-                    .foregroundColor(Color(hex: "#064266"))
-                    .font(.system(size: 20))
-                Text("Караганда")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(Color(hex: "#064266"))
-            }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 12)
-            .background(Color.white.opacity(0.2))
-            .cornerRadius(14)
-            
-            Spacer()
-            
-            ZStack {
-                Circle()
-                    .fill(Color.white.opacity(0.2))
-                    .frame(width: 40, height: 40)
-                Image(systemName: "bell.fill")
-                    .foregroundColor(Color(hex: "#064266"))
-                    .font(.system(size: 20))
-            }
-        }
-    }
-    
-    // ---------------------------------------------------------
-    // MARK: - BANNERS
-    // ---------------------------------------------------------
-    private var bannerSection: some View {
-        TabView(selection: $currentBannerIndex) {
-            bannerMap.tag(0)
-            
-            bannerCardModern(
-                title: "Советы по здоровью",
-                subtitle: "Ежедневные рекомендации",
-                colorStart: "#0B82F4",
-                colorEnd: "#064266"
-            ).tag(1)
-            
-            bannerCardModern(
-                title: "Лучшие врачи города",
-                subtitle: "Только проверенные специалисты",
-                colorStart: "#064266",
-                colorEnd: "#0B82F4"
-            ).tag(2)
-        }
-        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
-        .frame(height: 180)
-        .onReceive(timer) { _ in
-            withAnimation(.easeInOut) {
-                currentBannerIndex = (currentBannerIndex + 1) % 3
-            }
-        }
-    }
-    
-    private var bannerMap: some View {
-        ZStack(alignment: .bottom) {
-            Map(coordinateRegion: .constant(MKCoordinateRegion(
-                center: CLLocationCoordinate2D(latitude: 43.222, longitude: 76.851),
-                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-            )))
-            .cornerRadius(22)
-            .shadow(color: .gray.opacity(0.6), radius: 12, x: 0, y: 6)
-            
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Искать поблизости")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(Color(hex: "0A2A43"))
-                    Text("Ближайшие аптеки и клиники")
-                        .font(.system(size: 12))
-                        .foregroundColor(Color(hex: "0A2A43").opacity(0.85))
+            // ------------------ Список врачей ------------------
+            ScrollView {
+                VStack(spacing: 16) {
+                    ForEach(filteredDoctors, id: \.name) { doctor in
+                        doctorCard(doctor: doctor)
+                    }
                 }
-                
-                Spacer()
-                
-                Button(action: {}) {
-                    Image(systemName: "map.fill")
-                        .foregroundColor(.white)
-                        .font(.system(size: 22))
-                        .padding(12)
-                        .background(Color(hex: "#0A2A43"))
-                        .cornerRadius(12)
-                }
-
+                .padding()
             }
-            .padding(16)
-            .background(
-                LinearGradient(
-                    colors: [Color.black.opacity(0.25), Color.black.opacity(0.05)],
-                    startPoint: .bottom,
-                    endPoint: .top
-                )
-            )
-            .cornerRadius(16)
-            .padding(12)
         }
-        .frame(height: 180)
+        .navigationTitle(category)
     }
     
-    private func bannerCardModern(title: String, subtitle: String, colorStart: String, colorEnd: String) -> some View {
-        ZStack(alignment: .bottomLeading) {
-            RoundedRectangle(cornerRadius: 22)
-                .fill(
-                    LinearGradient(
-                        colors: [Color(hex: colorStart), Color(hex: colorEnd)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .shadow(color: .blue.opacity(0.25), radius: 12, x: 0, y: 6)
-            
-            VStack(alignment: .leading, spacing: 6) {
-                Text(title)
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(.white)
-                Text(subtitle)
-                    .font(.system(size: 14))
-                    .foregroundColor(.white.opacity(0.85))
-            }
-            .padding(16)
-            .background(.ultraThinMaterial.opacity(0.6))
-            .cornerRadius(16)
-            .padding(16)
-        }
-    }
-    
-    // ---------------------------------------------------------
-    // MARK: - CATEGORIES
-    // ---------------------------------------------------------
-    private var categoryHeader: some View {
-        HStack {
-            Text("Категории врачей")
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundColor(Color(hex: "#064266"))
-            Spacer()
-            Text("Все")
-                .foregroundColor(Color(hex: "#0B82F4"))
-                .font(.system(size: 14, weight: .semibold))
-        }
-    }
-    
-    private var scrollCategories: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 16) {
-                categoryCard(icon: "heart.text.square", title: "Пульмонолог", iconColor: .red)
-                categoryCard(icon: "stethoscope", title: "Терапевт", iconColor: .blue)
-                categoryCard(icon: "cross.case.fill", title: "Хирург", iconColor: .green)
-                categoryCard(icon: "brain", title: "Невролог", iconColor: .purple)
-                categoryCard(icon: "tooth.fill", title: "Стоматолог", iconColor: .orange)
-            }
-            .padding(.horizontal, 10)
-        }
-    }
-
-    private func categoryCard(icon: String, title: String, iconColor: Color) -> some View {
-        VStack(spacing: 8) {
-            ZStack {
-                Circle()
-                    .fill(Color.white)
-                    .frame(width: 70, height: 70)
-                    .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
-
-                Image(systemName: icon)
-                    .font(.system(size: 26))
-                    .foregroundColor(iconColor)
-            }
-
-            Text(title)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(Color(hex: "#0A2A43"))
-                .lineLimit(1)
-                .frame(width: 80)
-        }
-        .padding(6)
-    }
-
-
-    // ---------------------------------------------------------
-    // MARK: - COMPACT TODAY RECORDS (2x4)
-    // ---------------------------------------------------------
-    private var dailyIndicatorsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Сегодняшние показатели")
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(Color(hex: "#064266"))
-                
-                Spacer() // чтобы "Изменить" отодвинулось вправо
-                
-                Text("Изменить")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(Color(hex: "#0B82F4"))
-            }
-            .padding(.top, 10) // по желанию, для отступов
-
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 4), spacing: 10) {
-                CompactIndicator(title: "АД", value: "120/80", color: .green)
-                CompactIndicator(title: "Пульс", value: "78", color: .green)
-                CompactIndicator(title: "Сахар", value: "5.6", color: .yellow)
-                CompactIndicator(title: "Вес", value: "72 кг", color: .green)
-                CompactIndicator(title: "SpO₂", value: "97%", color: .green)
-                CompactIndicator(title: "Сон", value: "7 ч", color: .blue)
-                CompactIndicator(title: "Шаги", value: "4 500", color: .orange)
-                CompactIndicator(title: "Симптомы", value: "нет", color: .green)
-            }
-        }
-    }
-    
-    struct CompactIndicator: View {
-        let title: String
-        let value: String
-        let color: Color
+    private func doctorCard(doctor: (name: String, speciality: String, rating: Double, exp: Int, image: String, clinic: String, phone: String, price: String)) -> some View {
+        @State var isFavorite = false
         
-        var body: some View {
-            VStack(spacing: 4) {
-                Text(title)
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                Text(value)
-                    .font(.footnote)
-                    .bold()
-                    .foregroundColor(color)
-            }
-            .frame(maxWidth: .infinity, minHeight: 70)
-            .padding(6)
-            .background(Color.white)
-            .cornerRadius(10)
-            .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
-        }
-    }
-
-    
-    // ---------------------------------------------------------
-    // MARK: - RECORDS LIST
-    // ---------------------------------------------------------
-    private var recordsHeader: some View {
-        HStack {
-            Text("Текущие записи")
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundColor(Color(hex: "#064266"))
-            Spacer()
-            Text("Мои записи")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(Color(hex: "#0B82F4"))
-        }
-        .padding(.top, 10)
-    }
-    
-    private var improvedRecordList: some View {
-        VStack(spacing: 16) {
-            recordCard(
-                date: "23 ноября 2025, 11:30",
-                daysLeft: 1,
-                name: "Dr. Zaitin Zhanargul",
-                speciality: "Кардиолог",
-                rating: 4.7,
-                exp: 8,
-                image: "doctor2"
-            )
-            recordCard(
-                date: "26 ноября 2025, 10:00",
-                daysLeft: 3,
-                name: "Dr. Kuanysh Aruzhan",
-                speciality: "Гинеколог",
-                rating: 5.0,
-                exp: 12,
-                image: "doctor1"
-            )
-        }
-    }
-    
-    private func recordCard(date: String, daysLeft: Int, name: String, speciality: String, rating: Double, exp: Int, image: String) -> some View {
-        
-        let color: Color = daysLeft <= 1 ? .red : daysLeft <= 3 ? .orange : .yellow
-        
-        return VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                RoundedRectangle(cornerRadius: 3)
-                    .fill(color.opacity(0.85))
-                    .frame(width: 4, height: 22)
-                
-                Text(date)
-                    .foregroundColor(color)
-                    .font(.system(size: 14, weight: .semibold))
-                Spacer()
-                Text("Перейти")
-                    .foregroundColor(Color(hex: "#0B82F4"))
-                    .font(.system(size: 14, weight: .semibold))
-            }
-            
+        return VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 14) {
-                Image(image)
+                Image(doctor.image)
                     .resizable()
-                    .frame(width: 65, height: 65)
+                    .frame(width: 70, height: 70)
                     .clipShape(Circle())
-                    .shadow(color: .gray.opacity(0.2), radius: 6, x: 0, y: 4) // чуть сильнее
+                    .shadow(color: .gray.opacity(0.2), radius: 6, x: 0, y: 4)
                 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(name)
-                        .font(.system(size: 17, weight: .semibold))
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Text(doctor.name)
+                            .font(.system(size: 17, weight: .semibold))
+                        Spacer()
+                        Button(action: { isFavorite.toggle() }) {
+                            Image(systemName: isFavorite ? "star.fill" : "star")
+                                .foregroundColor(isFavorite ? .yellow : .gray)
+                        }
+                    }
                     
-                    Text(speciality)
+                    Text(doctor.speciality)
                         .foregroundColor(.gray)
                         .font(.system(size: 14))
                     
@@ -364,24 +265,61 @@ struct HomeView: View {
                         Image(systemName: "star.fill")
                             .foregroundColor(.yellow)
                             .font(.system(size: 14))
-                        Text(String(format: "%.1f", rating))
+                        Text(String(format: "%.1f", doctor.rating))
                             .font(.system(size: 14))
-                        Text("• \(exp) лет")
+                        Text("• \(doctor.exp) лет")
                             .foregroundColor(.gray)
                             .font(.system(size: 12))
                     }
+                    
+                    HStack(spacing: 6) {
+                        Image(systemName: "building.2.fill")
+                            .foregroundColor(.blue)
+                            .font(.system(size: 14))
+                        Text(doctor.clinic)
+                            .font(.system(size: 13))
+                            .foregroundColor(.gray)
+                    }
+                    
+                    HStack(spacing: 6) {
+                        Image(systemName: "phone.fill")
+                            .foregroundColor(.green)
+                            .font(.system(size: 14))
+                        Text(doctor.phone)
+                            .font(.system(size: 13))
+                            .foregroundColor(.gray)
+                    }
+                    
+                    HStack(spacing: 6) {
+                        Image(systemName: "dollarsign.circle.fill")
+                            .foregroundColor(.orange)
+                            .font(.system(size: 14))
+                        Text(doctor.price)
+                            .font(.system(size: 13))
+                            .foregroundColor(.gray)
+                    }
                 }
-                
-                Spacer()
             }
         }
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 22)
                 .fill(Color.white)
-                .shadow(color: .gray.opacity(0.15), radius: 12, x: 0, y: 6) // тень сильнее и мягче
+                .shadow(color: .gray.opacity(0.15), radius: 12, x: 0, y: 6)
         )
     }
-
 }
 
+// ------------------ Кнопка фильтра ------------------
+struct FilterButton: View {
+    let title: String
+    var body: some View {
+        Text(title)
+            .font(.system(size: 13, weight: .semibold))
+            .padding(.vertical, 6)
+            .padding(.horizontal, 10)
+            .background(Color.blue.opacity(0.15))
+            .foregroundColor(.blue)
+            .cornerRadius(12)
+    }
+}
